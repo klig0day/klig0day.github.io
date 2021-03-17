@@ -1,0 +1,24 @@
+/*Contact界面样式*/
+.contact-style{
+    font-size: 0.9em;
+}
+.contact-style ul{
+    padding: 0px;
+}
+.contact-style a{
+    display: block;
+    min-height: 20px;
+    width: 200px;
+    background-repeat: no-repeat;
+    background-size: 20px 20px;
+    padding: 0 0 0 30px;
+}
+.contact-style .phone-img a{
+    background-image: url('../img/phone.png');
+}
+.contact-style .mail-img a{
+    background-image: url('../img/mail.png');
+}
+.contact-style .net-img a{
+    background-image: url('../img/twitter.png')
+}

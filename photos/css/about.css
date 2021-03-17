@@ -1,0 +1,10 @@
+/*About Style*/
+.about-style img{
+    display: block;
+    margin: 0 auto 30px;
+    max-width: 150px;
+    border-radius: 100%;
+}
+.about-style p{
+    font-size: 0.9em;
+}
