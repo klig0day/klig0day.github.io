@@ -110,10 +110,10 @@
                         </ul>
                     </nav>
                     <nav>
-                        <a>总文章数：25</a>
+                        <a>总文章数：27</a>
                     </nav>
                     <nav>
-                        <a>总字数：<span class="post-count">76.1k</span></a>
+                        <a>总字数：<span class="post-count">76.8k</span></a>
                     </nav>
                                                                                                             
                     <nav class="header-smart-menu">
@@ -573,6 +573,227 @@
       
         <p class="article-more-link">
           <a class="article-more-a" href="/07-18/docker%E9%83%A8%E7%BD%B2mysql/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+
+
+  
+    <article id="post-Flutter数据库Moor" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/09-30/Flutter%E6%95%B0%E6%8D%AE%E5%BA%93Moor/">Flutter数据库Moor</a>
+    </h1>
+  
+
+
+
+  <a href="javascript:;" class="archive-article-date">
+      <i class="icon-smile icon"></i> 阅读数:<span id="/09-30/Flutter%E6%95%B0%E6%8D%AE%E5%BA%93Moor/" class="pageViews">0</span>次
+  </a>
+
+
+
+        
+        
+        <a href="/09-30/Flutter%E6%95%B0%E6%8D%AE%E5%BA%93Moor/" class="archive-article-date">
+  	<time datetime="2020-09-29T18:07:30.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-09-30</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="Flutter数据库Moor"><a href="#Flutter数据库Moor" class="headerlink" title="Flutter数据库Moor"></a>Flutter数据库Moor</h1><h2 id="0-前言"><a href="#0-前言" class="headerlink" title="0.前言"></a>0.前言</h2><p>最近一直在忙着各种各样的事儿(苦逼的大四狗😣)，还做了两个Flutter的项目，所以之前的Flutter教程的后续翻译就先鸽了，后面时间充裕了再给补上。这段时间在做一个应用，避免频繁请求服务器，所以需要做个数据缓存的优化，这儿咱们采用的是Moor也是是类似Android上的Room(其实Moor就是把Room倒过来写的😄)。</p>
+<h2 id="1-安装"><a href="#1-安装" class="headerlink" title="1.安装"></a>1.安装</h2><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">dependencies:</span></span><br><span class="line">  <span class="attr">moor:</span> <span class="string">^3.3.1</span></span><br><span class="line">  <span class="attr">sqlite3_flutter_libs:</span> <span class="string">^0.2.0</span></span><br><span class="line">  <span class="attr">path_provider:</span> <span class="string">^1.6.18</span></span><br><span class="line">  <span class="attr">path:</span> <span class="string">^1.7.0</span></span><br><span class="line"></span><br><span class="line"><span class="attr">dev_dependencies:</span></span><br><span class="line">  <span class="attr">moor_generator:</span> <span class="string">^3.3.1</span></span><br><span class="line">  <span class="attr">build_runner:</span> <span class="string">^1.10.3</span></span><br></pre></td></tr></table></figure>
+
+<p>在项目的<strong>pubspec.yaml</strong>文件中添加上述的内容。需要注意的是，此处是笔者此时的最新版本。读者<a href="https://pub.dev/" target="_blank" rel="noopener">请在此</a>查询依赖的最新版本。</p>
+<p>关于上述几个依赖的说明：</p>
+<blockquote>
+<p><strong>moor:</strong> 定义大多数api的核心软件包</p>
+<p><strong>sqlite3_flutter_libs:</strong> 让你的Android或iOS应用使用最新的sqlite3版本</p>
+<p><strong>path_provider</strong>  and <strong>path</strong>: 查找合适的位置来存储数据库</p>
+<p><strong>moor_generator：</strong> 根据你的表生成查询代码</p>
+<p><strong>build_runner:</strong> 通用代码生成工具</p>
+</blockquote>
+<h2 id="2-使用"><a href="#2-使用" class="headerlink" title="2.使用"></a>2.使用</h2><h3 id="2-1-申明数据表"><a href="#2-1-申明数据表" class="headerlink" title="2.1 申明数据表"></a>2.1 申明数据表</h3><p>使用moor，你只需要一些简单的dart代码就可以模块化你表的结构。</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">'package:moor/moor.dart'</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//注意：比如你在filename.dart中，”part 'filename.g.dart';”编译器会报错。</span></span><br><span class="line"><span class="comment">//但是别担心，这是moor用来生成代码所必须的，报错也会在后续的步骤中消失</span></span><br><span class="line"><span class="keyword">part</span> <span class="string">'filename.g.dart'</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//这将会生成一个名为'Todo'的表，表中的那些行由下面Todos的类代替</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Todos</span> <span class="keyword">extends</span> <span class="title">Table</span> </span>&#123;</span><br><span class="line">  IntColumn <span class="keyword">get</span> id =&gt; integer().autoIncrement()();</span><br><span class="line">  TextColumn <span class="keyword">get</span> title =&gt; text().withLength(min: <span class="number">6</span>, max: <span class="number">32</span>)();</span><br><span class="line">  TextColumn <span class="keyword">get</span> content =&gt; text().named(<span class="string">'body'</span>)();</span><br><span class="line">  IntColumn <span class="keyword">get</span> category =&gt; integer().nullable()();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// This will make moor generate a class called "Category" to represent a row in this table.</span></span><br><span class="line"><span class="comment">// By default, "Categorie" would have been used because it only strips away the trailing "s"</span></span><br><span class="line"><span class="comment">// in the table name.</span></span><br><span class="line"><span class="comment">// 这将会生成一个叫做"Category"的类来代替表中行</span></span><br><span class="line"><span class="comment">// 默认情况下(没有@DateClassName()),表名将会使用Categorie而不是Categories</span></span><br><span class="line"><span class="comment">// 正如上面的虽然写的Todos，但是生成的表名是Todo。</span></span><br><span class="line"><span class="meta">@DataClassName</span>(<span class="string">"Category"</span>)</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Categories</span> <span class="keyword">extends</span> <span class="title">Table</span> </span>&#123;</span><br><span class="line">  </span><br><span class="line">  IntColumn <span class="keyword">get</span> id =&gt; integer().autoIncrement()();</span><br><span class="line">  TextColumn <span class="keyword">get</span> description =&gt; text()();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 告诉Moor准备一个数据库的类来使用我们刚刚创建的表。后续我们将会知道，如何使用数据库的类</span></span><br><span class="line"><span class="meta">@UseMoor</span>(tables: [Todos, Categories])</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyDatabase</span> </span>&#123;</span><br><span class="line">  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-生成代码"><a href="#2-2-生成代码" class="headerlink" title="2.2 生成代码"></a>2.2 生成代码</h3>
+      
+	
+
+
+  <div class="declare" hidden="hidden"></div>
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">flutter</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">数据库</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/Flutter开发//" class="article-tag-list-link color5">Flutter开发</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/09-30/Flutter%E6%95%B0%E6%8D%AE%E5%BA%93Moor/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+
+
+  
+    <article id="post-vmware无法上网的解决办法" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/09-22/vmware%E6%97%A0%E6%B3%95%E4%B8%8A%E7%BD%91%E7%9A%84%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/">vmware无法上网的解决办法</a>
+    </h1>
+  
+
+
+
+  <a href="javascript:;" class="archive-article-date">
+      <i class="icon-smile icon"></i> 阅读数:<span id="/09-22/vmware%E6%97%A0%E6%B3%95%E4%B8%8A%E7%BD%91%E7%9A%84%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/" class="pageViews">0</span>次
+  </a>
+
+
+
+        
+        
+        <a href="/09-22/vmware%E6%97%A0%E6%B3%95%E4%B8%8A%E7%BD%91%E7%9A%84%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/" class="archive-article-date">
+  	<time datetime="2020-09-22T13:48:52.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-09-22</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="vmware无法上网的解决办法"><a href="#vmware无法上网的解决办法" class="headerlink" title="vmware无法上网的解决办法"></a>vmware无法上网的解决办法</h1><p>在虚拟机上装了一个windows，但是无法上网。并有如下的报错：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Could not connect &#39;Ethernet0&#39; to virtual network &#39;&#x2F;dev&#x2F;vmnet8&#39;.</span><br></pre></td></tr></table></figure>
+
+<p>解决办法如下：</p>
+        
+      
+	
+
+
+  <div class="declare" hidden="hidden"></div>
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">manjaro</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/linux系统//" class="article-tag-list-link color3">linux系统</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/09-22/vmware%E6%97%A0%E6%B3%95%E4%B8%8A%E7%BD%91%E7%9A%84%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95/">展开全文 >></a>
         </p>
       
 
@@ -1126,203 +1347,6 @@
 
 
   
-    <article id="post-计算机网络学习笔记" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/08-20/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">计算机网络学习笔记</a>
-    </h1>
-  
-
-
-
-  <a href="javascript:;" class="archive-article-date">
-      <i class="icon-smile icon"></i> 阅读数:<span id="/08-20/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="pageViews">0</span>次
-  </a>
-
-
-
-        
-        
-        <a href="/08-20/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="archive-article-date">
-  	<time datetime="2020-08-20T10:43:14.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-20</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="计算机网络学习笔记"><a href="#计算机网络学习笔记" class="headerlink" title="计算机网络学习笔记"></a>计算机网络学习笔记</h1><h2 id="1-1-计算机网络定义及特点"><a href="#1-1-计算机网络定义及特点" class="headerlink" title="1.1 计算机网络定义及特点"></a>1.1 计算机网络定义及特点</h2><p>“网络”是一个统称，泛指把人或物互联在一起而形成的系统。</p>
-<p>大众熟悉的三大类网络：</p>
-<ul>
-<li>电信网络:　提供电话，电报以及传真等服务。</li>
-<li>有线电视网络:　 想用户传送各种电视节目。</li>
-<li>计算机网络：使用户能在计算机之间传送数据文件。</li>
-</ul>
-        
-      
-	
-
-
-  <div class="declare" hidden="hidden"></div>
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">网络</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/学习笔记//" class="article-tag-list-link color5">学习笔记</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/08-20/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-
-
-  
-    <article id="post-记忆" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/08-18/%E8%AE%B0%E5%BF%86/">记忆</a>
-    </h1>
-  
-
-
-
-  <a href="javascript:;" class="archive-article-date">
-      <i class="icon-smile icon"></i> 阅读数:<span id="/08-18/%E8%AE%B0%E5%BF%86/" class="pageViews">0</span>次
-  </a>
-
-
-
-        
-        
-        <a href="/08-18/%E8%AE%B0%E5%BF%86/" class="archive-article-date">
-  	<time datetime="2020-08-17T20:20:46.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-18</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="记忆"><a href="#记忆" class="headerlink" title="记忆"></a>记忆</h1><p>今天在将照片上传到博客上时，看着那些许多的照片，似乎把我拉进来时空乱流中，回到久远的以前。有许多说不出道不明的感触。这儿想引用马尔克斯在《百年孤独》里所言，<strong><em>无论走到哪里，都应该记住，过去的都是假的，回忆是一条没有尽头的路，一切以往的春天都不复存在，就连那最坚韧而又狂乱的爱情归根结底也只不过是一种转瞬即逝的现实。</em></strong></p>
-<p>任重道远，继续努力吧。</p>
-<p><img src="/%E8%A1%A8%E6%83%85%E5%8C%85/littleCat.jpg" alt="littleCat"></p>
-
-      
-	
-
-
-  <div class="declare" hidden="hidden"></div>
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/随思录//" class="article-tag-list-link color4">随思录</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/08-18/%E8%AE%B0%E5%BF%86/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-
-
-  
   
     <nav id="page-nav">
       <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/">next ⏩</a>
@@ -1586,6 +1610,10 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">django</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">数据库</a>
               </li>
             
             <div class="clearfix"></div>
