@@ -1,0 +1,111 @@
+/*css文件*/
+a{
+    text-decoration: none;
+    color:  #6ab47b;
+}
+.main-logo {
+    text-align: center;
+    margin: 0px;
+    color: #ffffff;
+}
+.artical-style{
+    max-width: 980px;
+    margin: 0 auto;
+    /* text-align: center; */
+}
+.selected{
+    color: #32673f;
+}
+header{
+    background-color: #6ab47b;
+    border-color: #599A68;
+    margin: 0 0 30px 0;
+    padding:5px 0 0 0;
+    /* float: left;
+    width: 100%; */
+}
+nav{
+    background-color: #599A68;
+    text-align: center;
+    padding: 10px 0;
+    margin: 20px 0 0;
+}
+nav a {
+    color: #ffffff;
+    font-weight: 800;
+    padding: 10px 15px;
+    /* font-size: 10px; */
+}
+nav ul {
+    padding-left: 0;
+    margin: 0 auto;
+}
+nav a:hover{
+    color: #32673f;
+}
+body{
+    background-color: #ffffff;
+    color: #999;
+    font-family: 'Open Sans',sans-serif;
+}
+ul{
+    list-style: none;
+}
+h1{
+    font-family: 'changa one',sans-serif;
+    font-size: 1.75em;
+    margin: 15px 0px;
+    font-weight: normal;
+    line-height: 0.8em;
+}
+h2{
+    font-size: 0.75em;
+    margin: 5px 0 0;
+    font-weight: normal;
+}
+nav ul li {
+    display: inline;
+    margin: 0;
+    padding: 0 10px;
+}
+footer{
+    font-size: 0.75em;
+    padding-top: 50px;
+    color: #ccc;
+    text-align: center;
+    clear: both;
+}
+img{
+    max-width: 100%;
+}
+.imgs-display{
+    padding: 0px;
+}
+.imgs-display img{
+    border-radius: 3%;
+}
+.imgs-display li {
+    float: left;
+    /* display: inline; */
+    width: 27.3%;
+    background-color: #f5f5f5;
+    color: #bdc3c7;
+    margin: 3%;
+}
+.imgs-display li p{
+    padding: 5%;
+    margin: 0;
+    font-size: 0.75em;
+    color: #bdc3c7;
+}
+/* .img-face img{
+    background-image: url('../imgs/img/facebook-wrap.png');
+} */
+footer img{
+    width: 20px;
+    height: 20px;
+    margin: 0 5px;
+}
+/* .img-face img:hover{
+    background-image: url('../imgs/img/facebook.png');
+} */
